@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const generateToken = require('./utils/generateToken');
 
 const talkerPath = path.resolve(__dirname, './talker.json');
 
@@ -33,6 +34,18 @@ app.get('/talker/:id', async (req, res) => {
     return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   }
   return res.status(200).json(foundTalker);
+});
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  const loginArray = [email, password];
+
+  if (loginArray.includes(undefined)) {
+    return res.status(401).json({ message: 'Campos ausentes!' });
+  }
+
+  const token = generateToken();
+  return res.status(200).json({ token });
 });
 
 app.listen(PORT, () => {
