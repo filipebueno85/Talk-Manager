@@ -95,6 +95,17 @@ async (req, res) => {
   return res.status(200).json(newTalk);
 });
 
+app.delete('/talker/:id', auth, async (req, res) => {
+  const { id } = req.params;
+  const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
+  const deleteTalk = talker.filter((talk) => talk.id !== Number(id));
+
+  await fs.writeFile(talkerPath, JSON.stringify(deleteTalk));
+  if (!deleteTalk) res.status(500).send({ message: 'erro!' });
+  return res.status(204).json({ message: 'Palestrante deletado com sucesso' });
+});
+
+
 app.post('/login', emailValidate, passwordValidate, (req, res) => {
   const { email, password } = req.body;
   const loginArray = [email, password];
