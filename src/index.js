@@ -10,10 +10,10 @@ app.use(express.json());
 const HTTP_OK_STATUS = 200;
 const PORT = process.env.PORT || '3001';
 
-const readFile = async () => {
-  const response = await fs.readFile(talkerPath, 'utf-8')
-  return JSON.parse(response);
-};
+// const readFile = async () => {
+//   const response = await fs.readFile(talkerPath, 'utf-8');
+//   return JSON.parse(response);
+// };
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -21,20 +21,19 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (req, res) => {
-  const talker = await readFile(talkerPath);
-
+  const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
   return res.status(200).json(talker);
-})
+});
 
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;
-  const talker = await readFile(talkerPath);
+  const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
   const foundTalker = talker.find((talk) => talk.id === Number(id));
   if (!foundTalker) {
     return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   }
   return res.status(200).json(foundTalker);
-})
+});
 
 app.listen(PORT, () => {
   console.log('Online');
