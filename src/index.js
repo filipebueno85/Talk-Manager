@@ -105,7 +105,6 @@ app.delete('/talker/:id', auth, async (req, res) => {
   return res.status(204).json({ message: 'Palestrante deletado com sucesso' });
 });
 
-
 app.post('/login', emailValidate, passwordValidate, (req, res) => {
   const { email, password } = req.body;
   const loginArray = [email, password];
