@@ -29,6 +29,16 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
+app.get('/talker/search', auth, async (req, res) => {
+  const { q } = req.query;
+  const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
+  if (q) {
+    const queryTalker = talker.filter((query) => query.name.includes(q));
+    return res.status(200).json(queryTalker);
+  }
+  return res.status(200).json(talker);
+});
+
 app.get('/talker', async (req, res) => {
   const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
   return res.status(200).json(talker);
