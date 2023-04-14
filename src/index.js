@@ -20,9 +20,20 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
-app.get('/talker', async (req, res) =>{
+app.get('/talker', async (req, res) => {
   const talker = await readFile(talkerPath);
+
   return res.status(200).json(talker);
+})
+
+app.get('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const talker = await readFile(talkerPath);
+  const foundTalker = talker.find((talk) => talk.id === Number(id));
+  if (!foundTalker) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+  return res.status(200).json(foundTalker);
 })
 
 app.listen(PORT, () => {
