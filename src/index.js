@@ -10,6 +10,7 @@ const ageValidate = require('./middlewares/ageValidate');
 const talkValidate = require('./middlewares/talkValidate');
 const watchedAtValidate = require('./middlewares/watchedAtValidate');
 const rateValidate = require('./middlewares/rateValidate');
+const rateQvalidate = require('./middlewares/rateQvalidate');
 
 const talkerPath = path.resolve(__dirname, './talker.json');
 
@@ -29,15 +30,39 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
-app.get('/talker/search', auth, async (req, res) => {
+app.get('/talker/search', 
+auth, 
+rateQvalidate, 
+async (req, res) => {
   const { q } = req.query;
+  console.log(req.query);
+  const { rate } = req.query;
   const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
+  if (q && rate) {
+    const queryTalker = talker.filter((query) => query.talk.rate === (Number(rate)))
+    .filter((query) => query.name.includes(q));
+    return res.status(200).json(queryTalker);
+  }
   if (q) {
     const queryTalker = talker.filter((query) => query.name.includes(q));
     return res.status(200).json(queryTalker);
   }
+  if (rate) {
+    const queryTalkerRate = talker.filter((query) => query.talk.rate === (Number(rate)));
+    return res.status(200).json(queryTalkerRate);
+  } 
   return res.status(200).json(talker);
 });
+
+// app.get('/talker/search', auth, rateValidate, async (req, res) => {
+//   const { rate } = req.query;
+//   const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
+//   if (rate) {
+//     const queryTalker = talker.filter((query) => query.Number(rate).includes(q));
+//     return res.status(200).json(queryTalker);
+//   }
+//   return res.status(200).json(talker);
+// });
 
 app.get('/talker', async (req, res) => {
   const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
@@ -96,7 +121,7 @@ async (req, res) => {
     if (tlk.id === Number(id)) {
       return newTalk;
     }
-    return talk;
+    return tlk;
   }); 
   if (!foundTalker) {
     return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
