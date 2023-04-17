@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const talkerDB = require('../db/talkerDB');
 
 const auth = require('../middlewares/auth');
 const rateQvalidate = require('../middlewares/rateQvalidate');
@@ -16,6 +17,19 @@ const rateValidatePatch = require('../middlewares/rateValidatePatch');
 const router = express.Router();
 
 const talkerPath = path.resolve(__dirname, '../talker.json');
+
+router.get('/talker/db', async (req, res) => {
+  const [result] = await talkerDB.findAll();
+  console.log(result);
+  const talkers = result.map((talk) => ({
+      id: talk.id,
+      name: talk.name,
+      age: talk.age,
+      talk: { rate: talk.talk_rate,
+      watchedAt: talk.talk_watched_at },
+    }));
+  return res.status(200).json(talkers);
+});
 
 router.get('/talker/search', auth, rateQvalidate, watchedAtSearchValidate, async (req, res) => {
   const { q, rate, date } = req.query;
