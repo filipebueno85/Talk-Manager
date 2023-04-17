@@ -11,6 +11,7 @@ const watchedAtValidate = require('../middlewares/watchedAtValidate');
 const rateValidate = require('../middlewares/rateValidate');
 const watchedAtSearchValidate = require('../middlewares/watchedAtSearchValidate');
 const filterQueryTalker = require('../utils/filterQueryTalker');
+const rateValidatePatch = require('../middlewares/rateValidatePatch');
 
 const router = express.Router();
 
@@ -147,6 +148,25 @@ router.delete('/talker/:id', auth, async (req, res) => {
   await fs.writeFile(talkerPath, JSON.stringify(deleteTalk));
   if (!deleteTalk) res.status(500).send({ message: 'erro!' });
   return res.status(204).json({ message: 'Palestrante deletado com sucesso' });
+});
+
+router.patch('/talker/rate/:id', auth, rateValidatePatch, async (req, res) => {
+  const talker = JSON.parse(await fs.readFile(talkerPath, 'utf-8'));
+  const { id } = req.params;
+  const { rate } = req.body;
+
+  const newRate = talker.map((tlk) => {
+    if (tlk.id === Number(id)) {
+      return { ...tlk, talk: { ...tlk.talk, rate } };
+    }
+    return tlk;
+  });
+  // console.log(newRate);
+  if (!newRate) {
+    res.status(500).send({ message: 'erro!' });
+  }
+  await fs.writeFile(talkerPath, JSON.stringify(newRate));
+  return res.status(204).json();
 });
 
 module.exports = router;
